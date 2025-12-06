@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import background from '$lib/assets/background.png';
+	import ShaderImage from '$lib/components/ShaderImage.svelte';
+	import breathingShader from '$lib/shaders/breathing.frag';
 	import Play from '@lucide/svelte/icons/play';
 	import Pause from '@lucide/svelte/icons/pause';
 	import { formatTime } from '$lib/utils';
@@ -102,8 +104,9 @@
 		style:height={isWider ? 'auto' : '100vh'}
 		style:aspect-ratio="{imgNaturalWidth} / {imgNaturalHeight}"
 	>
-		<img
+		<ShaderImage
 			src={background}
+			fragmentShader={breathingShader}
 			alt="Background"
 			class="h-full w-full object-cover"
 			bind:naturalWidth={imgNaturalWidth}
