@@ -33,7 +33,7 @@
 		isWider ? innerWidth : innerHeight * (imgNaturalWidth / imgNaturalHeight)
 	);
 	let fontSize = $derived(displayedWidth * (14 / 1920));
-	let iconSize = $derived(displayedWidth * (40 / 1920));
+	let iconSize = $derived(displayedWidth * (34 / 1920));
 
 	const updateFace = (currentMode: 'work' | 'break', running: boolean) => {
 		if (faceTimer) clearInterval(faceTimer);
@@ -111,11 +111,13 @@
 			class="h-full w-full object-cover"
 			bind:naturalWidth={imgNaturalWidth}
 			bind:naturalHeight={imgNaturalHeight}
+			play={isRunning}
+			state={mode === 'work' ? 1 : 2}
 		/>
 
 		<button
 			onclick={toggleTimer}
-			class="absolute top-[37.5%] right-[23.8%] z-10 -rotate-7 skew-x-8 cursor-pointer border-none bg-transparent p-0 text-ctp-flamingo opacity-40 transition-opacity hover:opacity-100"
+			class="absolute top-[37.8%] right-[23.8%] z-10 -rotate-7 skew-x-8 cursor-pointer border-none bg-transparent p-0 text-ctp-flamingo opacity-80 transition-opacity hover:opacity-100 mix-blend-lighten"
 			aria-label={isRunning ? 'Pause' : 'Start'}
 		>
 			{#if isRunning}
@@ -126,20 +128,28 @@
 		</button>
 
 		<div
-			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-70 mb-12 font-mono font-bold blur-md pointer-events-none"
+			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold blur-md pointer-events-none mix-blend-lighten"
 			style:font-size="{fontSize}px"
 		>
 			{formatTime(timeLeft)}
 		</div>
 
 		<div
-			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-90 mb-12 font-mono font-bold pointer-events-none"
+			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold pointer-events-none mix-blend-lighten"
 			style:font-size="{fontSize}px"
 		>
 			{formatTime(timeLeft)}
 		</div>
+
 		<div
-			class="absolute top-[19.8%] right-[23.1%] -skew-y-12 text-ctp-flamingo opacity-90 mb-12 font-mono font-bold pointer-events-none"
+			class="absolute top-[19.8%] right-[23.1%] -skew-y-12 text-ctp-flamingo opacity-100 mb-12 font-mono font-bold pointer-events-none blur-xs"
+			style:font-size="{fontSize}px"
+		>
+			{faceText}
+		</div>
+
+		<div
+			class="absolute top-[19.8%] right-[23.1%] -skew-y-12 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold pointer-events-none mix-blend-lighten"
 			style:font-size="{fontSize}px"
 		>
 			{faceText}

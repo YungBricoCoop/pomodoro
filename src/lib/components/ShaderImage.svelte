@@ -9,7 +9,9 @@
 		alt,
 		class: className,
 		naturalWidth = $bindable(),
-		naturalHeight = $bindable()
+		naturalHeight = $bindable(),
+		play = false,
+		state = 0
 	} = $props();
 
 	let canvas: HTMLCanvasElement;
@@ -19,6 +21,8 @@
 	let texture: WebGLTexture;
 	let animationId: number;
 	let startTime = 0;
+	let lastTime = 0;
+	let dustTime = 0;
 
 	const loadTexture = (url: string) => {
 		const img = new Image();
@@ -47,6 +51,15 @@
 		}
 
 		if (startTime === 0) startTime = time;
+		if (lastTime === 0) lastTime = time;
+
+		const deltaTime = (time - lastTime) * 0.001;
+		lastTime = time;
+
+		if (play) {
+			dustTime += deltaTime;
+		}
+
 		const u_time = (time - startTime) * 0.001;
 
 		twgl.resizeCanvasToDisplaySize(canvas);
@@ -54,6 +67,9 @@
 
 		const uniforms = {
 			u_time,
+			u_dust_time: dustTime,
+			u_play: play ? 1.0 : 0.0,
+			u_state: state,
 			u_texture: texture,
 			u_resolution: [gl.canvas.width, gl.canvas.height]
 		};
