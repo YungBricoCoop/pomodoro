@@ -28,6 +28,24 @@
 	let imgNaturalWidth = $state(1);
 	let imgNaturalHeight = $state(1);
 
+	let timerElement = $state<HTMLDivElement>();
+	let isTimerVisible = $state(true);
+
+	$effect(() => {
+		if (!timerElement) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				isTimerVisible = entries[0].isIntersecting;
+			},
+			{ threshold: 1.0 }
+		);
+
+		observer.observe(timerElement);
+
+		return () => observer.disconnect();
+	});
+
 	let isWider = $derived(innerWidth / innerHeight > imgNaturalWidth / imgNaturalHeight);
 	let displayedWidth = $derived(
 		isWider ? innerWidth : innerHeight * (imgNaturalWidth / imgNaturalHeight)
@@ -128,6 +146,7 @@
 		</button>
 
 		<div
+			bind:this={timerElement}
 			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold blur-md pointer-events-none mix-blend-lighten"
 			style:font-size="{fontSize}px"
 		>
@@ -155,4 +174,17 @@
 			{faceText}
 		</div>
 	</div>
+
+	{#if !isTimerVisible}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 text-center text-ctp-flamingo"
+		>
+			<div>
+				<p class="text-2xl font-bold">Screen too small</p>
+				<p class="mt-2 text-lg">
+					This site is made to run on desktop screens or tablets in landscape mode.
+				</p>
+			</div>
+		</div>
+	{/if}
 </div>
