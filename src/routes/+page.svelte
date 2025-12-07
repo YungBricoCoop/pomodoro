@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
 	import background from '$lib/assets/background.png';
 	import ShaderImage from '$lib/components/ShaderImage.svelte';
 	import breathingShader from '$lib/shaders/breathing.frag';
@@ -19,6 +18,7 @@
 	let timeLeft = $state(WORK_TIME);
 	let isRunning = $state(false);
 	let mode = $state<'work' | 'break'>('work');
+
 	let timer: ReturnType<typeof setInterval> | undefined;
 
 	let faceText = $state(FACES.IDLE);
@@ -29,7 +29,7 @@
 	let imgNaturalWidth = $state(1);
 	let imgNaturalHeight = $state(1);
 
-	let timerElement = $state<HTMLDivElement>();
+	let timerElement: HTMLDivElement | null = null;
 	let isTimerVisible = $state(true);
 
 	$effect(() => {
@@ -44,7 +44,16 @@
 
 		observer.observe(timerElement);
 
-		return () => observer.disconnect();
+		return () => {
+			observer.disconnect();
+		};
+	});
+
+	$effect(() => {
+		return () => {
+			if (timer) clearInterval(timer);
+			if (faceTimer) clearInterval(faceTimer);
+		};
 	});
 
 	let isWider = $derived(innerWidth / innerHeight > imgNaturalWidth / imgNaturalHeight);
@@ -111,11 +120,6 @@
 		playOn();
 		startTimer();
 	};
-
-	onDestroy(() => {
-		if (timer) clearInterval(timer);
-		if (faceTimer) clearInterval(faceTimer);
-	});
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -125,7 +129,7 @@
 		class="relative"
 		style:width={isWider ? '100vw' : 'auto'}
 		style:height={isWider ? 'auto' : '100vh'}
-		style:aspect-ratio="{imgNaturalWidth} / {imgNaturalHeight}"
+		style:aspect-ratio={`${imgNaturalWidth} / ${imgNaturalHeight}`}
 	>
 		<ShaderImage
 			src={background}
@@ -153,28 +157,28 @@
 		<div
 			bind:this={timerElement}
 			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold blur-md pointer-events-none mix-blend-lighten"
-			style:font-size="{fontSize}px"
+			style:font-size={`${fontSize}px`}
 		>
 			{formatTime(timeLeft)}
 		</div>
 
 		<div
 			class="absolute top-[31.1%] right-[23.2%] -skew-x-8 -skew-y-8 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold pointer-events-none mix-blend-lighten"
-			style:font-size="{fontSize}px"
+			style:font-size={`${fontSize}px`}
 		>
 			{formatTime(timeLeft)}
 		</div>
 
 		<div
 			class="absolute top-[19.8%] right-[23.1%] -skew-y-12 text-ctp-flamingo opacity-100 mb-12 font-mono font-bold pointer-events-none blur-xs"
-			style:font-size="{fontSize}px"
+			style:font-size={`${fontSize}px`}
 		>
 			{faceText}
 		</div>
 
 		<div
 			class="absolute top-[19.8%] right-[23.1%] -skew-y-12 text-ctp-flamingo opacity-80 mb-12 font-mono font-bold pointer-events-none mix-blend-lighten"
-			style:font-size="{fontSize}px"
+			style:font-size={`${fontSize}px`}
 		>
 			{faceText}
 		</div>
