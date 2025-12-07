@@ -6,6 +6,7 @@
 	import Play from '@lucide/svelte/icons/play';
 	import Pause from '@lucide/svelte/icons/pause';
 	import { formatTime } from '$lib/utils';
+	import { playOn, playOff, playTime, stopTime } from '$lib/audio';
 
 	const WORK_TIME = 25 * 60;
 	const BREAK_TIME = 5 * 60;
@@ -82,6 +83,7 @@
 
 	const handleTimerComplete = () => {
 		stopTimer();
+		playTime();
 		mode = mode === 'work' ? 'break' : 'work';
 		timeLeft = mode === 'work' ? WORK_TIME : BREAK_TIME;
 	};
@@ -99,11 +101,14 @@
 	};
 
 	const toggleTimer = () => {
+		stopTime();
 		if (isRunning) {
+			playOff();
 			stopTimer();
 			return;
 		}
 
+		playOn();
 		startTimer();
 	};
 

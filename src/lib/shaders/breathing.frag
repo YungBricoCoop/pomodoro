@@ -87,7 +87,7 @@ void main() {
 
     col += vec3(1.0, 0.5, 0.4) * dust * 0.4;
 
-    if (u_state == 2.0) {
+    if (u_state == 2.0 || u_play == 0.0) {
         float gray = dot(col, vec3(0.3, 0.58, 0.12));
         vec3 coolTint = vec3(0.8, 0.9, 1.0);
         col = mix(col, vec3(gray) * coolTint, 0.8);
