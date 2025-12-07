@@ -1,8 +1,10 @@
 # 🤖 Pomodoro
 
-Simple Pomodoro timer that combines `Svelte`, `GLSL` shaders and `Howler.js` for audio.
+Simple and aesthetic Pomodoro timer that combines `Svelte`, `GLSL` shaders and `Howler.js` for audio. The visual style is based on the **Catppuccin Mocha** color palette (@catppuccin/tailwindcss)
 
-You can view the live demo here: [https://elwan.ch/pomodoro](https://elwan.ch/pomodoro)
+You can view the live demo here: [https://yungbricocoop.github.io/pomodoro/](https://yungbricocoop.github.io/pomodoro/)
+
+This repository includes a GitHub Action `deploy.yml` that automatically lints the code and publishes the application to GitHub Pages.
 
 ## Development
 
