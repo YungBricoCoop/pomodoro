@@ -6,6 +6,8 @@ You can view the live demo here: [https://yungbricocoop.github.io/pomodoro/](htt
 
 This repository includes a GitHub Action `deploy.yml` that automatically lints the code and publishes the application to GitHub Pages.
 
+![example](docs/example.png)
+
 ## Development
 
 To start the development server run:
