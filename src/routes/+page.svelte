@@ -6,6 +6,8 @@
 	import Pause from '@lucide/svelte/icons/pause';
 	import { formatTime } from '$lib/utils';
 	import { playOn, playOff, playTime, stopTime } from '$lib/audio';
+	import TimerWorker from '$lib/timer.worker?worker';
+	import favicon from '$lib/assets/favicon.svg';
 
 	const WORK_TIME = 25 * 60;
 	const BREAK_TIME = 5 * 60;
@@ -19,7 +21,8 @@
 	let isRunning = $state(false);
 	let mode = $state<'work' | 'break'>('work');
 
-	let timer: ReturnType<typeof setInterval> | undefined;
+	let timerWorker: Worker | undefined;
+	let endTime = $state(0);
 
 	let faceText = $state(FACES.IDLE);
 	let faceTimer: ReturnType<typeof setInterval> | undefined;
@@ -50,8 +53,68 @@
 	});
 
 	$effect(() => {
+		if (isRunning && endTime > 0) {
+			localStorage.setItem(
+				'pomodoroState',
+				JSON.stringify({
+					timeLeft,
+					isRunning,
+					mode,
+					endTime
+				})
+			);
+		} else if (!isRunning) {
+			localStorage.setItem(
+				'pomodoroState',
+				JSON.stringify({
+					timeLeft,
+					isRunning,
+					mode,
+					endTime: 0
+				})
+			);
+		}
+	});
+
+	$effect(() => {
+		timerWorker = new TimerWorker();
+
+		timerWorker.onmessage = () => {
+			const remaining = Math.ceil((endTime - Date.now()) / 1000);
+			if (remaining <= 0) {
+				timeLeft = 0;
+				handleTimerComplete();
+			} else {
+				timeLeft = remaining;
+			}
+		};
+
+		const saved = localStorage.getItem('pomodoroState');
+		if (saved) {
+			const state = JSON.parse(saved);
+			mode = state.mode;
+
+			if (state.isRunning && state.endTime > 0) {
+				const remaining = Math.ceil((state.endTime - Date.now()) / 1000);
+				if (remaining <= 0) {
+					timeLeft = 0;
+					setTimeout(() => handleTimerComplete(), 100);
+				} else {
+					timeLeft = remaining;
+					endTime = state.endTime;
+					isRunning = true;
+					updateFace(mode, true);
+					timerWorker.postMessage('start');
+				}
+			} else {
+				timeLeft = state.timeLeft;
+				isRunning = false;
+				updateFace(mode, false);
+			}
+		}
+
 		return () => {
-			if (timer) clearInterval(timer);
+			timerWorker?.terminate();
 			if (faceTimer) clearInterval(faceTimer);
 		};
 	});
@@ -85,7 +148,7 @@
 	};
 
 	const stopTimer = () => {
-		if (timer) clearInterval(timer);
+		timerWorker?.postMessage('stop');
 		isRunning = false;
 		updateFace(mode, false);
 	};
@@ -93,6 +156,12 @@
 	const handleTimerComplete = () => {
 		stopTimer();
 		playTime();
+		if (Notification.permission === 'granted') {
+			new Notification('Pomodoro Timer', {
+				body: mode === 'work' ? 'Work time is over! Take a break.' : 'Break is over! Back to work.',
+				icon: favicon
+			});
+		}
 		mode = mode === 'work' ? 'break' : 'work';
 		timeLeft = mode === 'work' ? WORK_TIME : BREAK_TIME;
 	};
@@ -100,17 +169,16 @@
 	const startTimer = () => {
 		isRunning = true;
 		updateFace(mode, true);
-		timer = setInterval(() => {
-			if (timeLeft > 0) {
-				timeLeft--;
-			} else {
-				handleTimerComplete();
-			}
-		}, 1000);
+		endTime = Date.now() + timeLeft * 1000;
+		timerWorker?.postMessage('start');
 	};
 
 	const toggleTimer = () => {
 		stopTime();
+		if (Notification.permission === 'default') {
+			Notification.requestPermission();
+		}
+
 		if (isRunning) {
 			playOff();
 			stopTimer();
